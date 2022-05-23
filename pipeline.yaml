@@ -1,1 +1,57 @@
-
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: run-debug
+spec:
+  workspaces:
+  - name: output
+    optional: true
+  steps:
+  - image: alpine:latest
+    workingDir: "/workspace/output/"
+    script: |
+      ls -lrt      
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: sqr-yard-fe<name of the pipeline>
+spec:
+  workspaces:
+  - name: shared-data-fe<workspace name>
+    description: |
+      This workspace will receive the cloned git repo and be passed
+      to the next Task for the repo's README.md file to be read.
+  tasks:
+  - name: fetch-repo-fe
+    taskRef:
+      name: git-clone
+    params:
+    - name: url
+      value: <repo that holds the sourcecode>
+    - name: revision
+      value: "main"<branch-name>   
+    workspaces:
+    - name: output
+      workspace: shared-data-fe
+  - name: debug-folder-fe
+    runAfter: ["fetch-repo-fe"]
+    taskRef:
+      name: run-debug 
+    workspaces:
+    - name: output
+      workspace: shared-data-fe      
+  - name: build-container-image-fe
+    runAfter: ["debug-folder-fe"]
+    taskRef:
+      name: build-kaniko-fe
+    params:
+    - name: app_repo
+      value: dir:///workspace/output/
+    - name: container_image
+      value: <image registry with image name like regname/imagename>
+    - name: container_tag
+      value: "v1"
+    workspaces:
+    - name: output
+      workspace: shared-data-fe
