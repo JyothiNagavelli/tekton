@@ -7,3 +7,5 @@ gcloud auth application-default print-access-token | docker login -u oauth2acces
 # tekton cli
   curl -LO https://github.com/tektoncd/cli/releases/download/v0.23.1/tektoncd-cli-0.23.1_Linux-64bit.deb
 sudo dpkg -i ./tektoncd-cli-0.23.1_Linux-64bit.deb
+# reference build and deploy
+  https://github.com/IBM/deploy-app-using-tekton-on-kubernetes/blob/master/tekton-pipeline/task/deploy-to-cluster.yaml
